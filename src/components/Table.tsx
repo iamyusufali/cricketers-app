@@ -22,12 +22,19 @@ import { Column } from '../pages/players/Listing';
  * Interface and Types
  *
  **/
+export type PaginationAction = 'forward' | 'backward' | 'reset';
+
 interface TableProps {
 	columns: Column[];
 	rows: TPlayer[];
 	perPage?: number;
 	currentPage: number;
-	paginationHandler: (action: 'forward' | 'backward' | 'reset') => void;
+	paginationHandler: (action: PaginationAction) => void;
+	renderSingleRowData?: (
+		row: TPlayer,
+		column: Column,
+		finalValue: string | number
+	) => JSX.Element | string | number;
 }
 
 interface SortState {
@@ -41,7 +48,7 @@ interface SortState {
  *
  **/
 export const Table = (props: TableProps) => {
-	const { columns, rows, perPage, currentPage, paginationHandler } = props;
+	const { columns, rows, perPage, currentPage, paginationHandler, renderSingleRowData } = props;
 
 	const [sort, setSort] = useState<SortState>({
 		order: 'asc',
@@ -61,7 +68,10 @@ export const Table = (props: TableProps) => {
 	const perPageLimit = perPage || 10;
 	const rowsCount = sortedRows.length;
 	const totalPages = Math.ceil(rowsCount / perPageLimit);
-	const displayRows = sortedRows.slice((currentPage - 1) * perPageLimit, currentPage * perPageLimit);
+	const displayRows = sortedRows.slice(
+		(currentPage - 1) * perPageLimit,
+		currentPage * perPageLimit
+	);
 
 	const handleSort = async (orderBy: keyof TPlayer) => {
 		if (rowsCount < 2) return;
@@ -100,9 +110,9 @@ export const Table = (props: TableProps) => {
 
 	return (
 		<TableContainer w='full' border='1px' borderColor='gray.200' borderRadius='md'>
-			<ChakraTable variant='unstyled'>
+			<ChakraTable variant='unstyled' bg='gray.200'>
 				<Thead>
-					<Tr bg='gray.100'>
+					<Tr bg='gray.300'>
 						{columns.map(column => {
 							return (
 								<Th key={column.accessor}>
@@ -126,40 +136,52 @@ export const Table = (props: TableProps) => {
 				</Thead>
 				<Tbody fontSize='0.8em'>
 					{displayRows.map(row => (
-						<Tr key={row.id} borderTop='1px' borderBottom='1px' borderColor='gray.200'>
+						<Tr key={row.id} borderTop='1px' borderBottom='1px' borderColor='gray.300'>
 							{columns.map(column => {
-								const finalValue = column.format ? column.format(row[column.accessor]) : row[column.accessor];
-								return <Td key={column.accessor}>{finalValue}</Td>;
+								const finalValue = column.format
+									? column.format(row[column.accessor])
+									: row[column.accessor];
+
+								if (!finalValue) return;
+								return (
+									<Td color='gray.700' key={column.accessor}>
+										{renderSingleRowData
+											? renderSingleRowData(row, column, finalValue)
+											: finalValue}
+									</Td>
+								);
 							})}
 						</Tr>
 					))}
 				</Tbody>
 			</ChakraTable>
 
-			<Flex w='full' align='center' justify='end' gap='1em' p='0.65em'>
+			<Flex w='full' align='center' justify='end' gap='1em' p='0.65em' bg='gray.200'>
 				<Flex gap='0.2em'>
-					<Text fontSize='0.8em' color='gray.400'>
+					<Text fontSize='0.85em' color='gray.600'>
 						showing page
 					</Text>
-					<Text fontSize='0.8em'>{currentPage}</Text>
-					<Text fontSize='0.8em' color='gray.400'>
+					<Text fontSize='0.85em' fontWeight='bold' color='green.600'>
+						{currentPage}
+					</Text>
+					<Text fontSize='0.85em' color='gray.600'>
 						of {totalPages}
 					</Text>
 				</Flex>
 				{rowsCount > perPageLimit ? (
 					<Flex gap='0.85em'>
 						<ChevronLeftIcon
-							w={5}
-							h={5}
+							w={7}
+							h={7}
 							cursor={currentPage === 1 ? 'not-allowed' : 'pointer'}
-							color={currentPage === 1 ? 'gray.300' : 'gray.700'}
+							color={currentPage === 1 ? 'gray.400' : 'gray.700'}
 							onClick={() => movePage('backward')}
 						/>
 						<ChevronRightIcon
-							w={5}
-							h={5}
+							w={7}
+							h={7}
 							cursor={currentPage === totalPages ? 'not-allowed' : 'pointer'}
-							color={currentPage === totalPages ? 'gray.300' : 'gray.700'}
+							color={currentPage === totalPages ? 'gray.400' : 'gray.700'}
 							onClick={() => movePage('forward')}
 						/>
 					</Flex>

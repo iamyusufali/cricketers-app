@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { Box, Button, Flex, Input, Select, Skeleton, Stack, Text } from '@chakra-ui/react';
 import getPlayers, { TPlayer } from '../../utils/getPlayers';
-import { Table } from '../../components/Table';
-import { Box, Skeleton, Stack } from '@chakra-ui/react';
+import { PaginationAction, Table } from '../../components/Table';
+import { TypeOptions } from '../../utils/constants';
+import { filterPlayers } from '../../utils/helpers';
+import { Link } from 'react-router-dom';
 
 /**
  *
@@ -26,6 +29,7 @@ export interface Filters {
  *
  **/
 const PlayersListPage = () => {
+	const inputRef = useRef<HTMLInputElement>(null);
 	const columnsConfig: Column[] = [
 		{ accessor: 'name', label: 'Name', enableSort: true },
 		{ accessor: 'type', label: 'Type' },
@@ -42,9 +46,21 @@ const PlayersListPage = () => {
 		},
 	];
 
-	const [playersList, setPlayersList] = useState<TPlayer[]>([]);
 	const [isFetching, setIsFetching] = useState<boolean>(true);
+	const [filters, setFilters] = useState<Filters>(() => {
+		return JSON.parse(localStorage.getItem('filters') || '{}');
+	});
 	const [currentPage, setCurrentPage] = useState<number>(1);
+	const [playersList, setPlayersList] = useState<TPlayer[]>([]);
+	const filteredPlayers = filterPlayers(playersList, filters);
+
+	const paginationHandler = (action: PaginationAction) => {
+		setCurrentPage(prevPage => {
+			if (action === 'reset') return 1;
+			if (action === 'forward') return prevPage + 1;
+			else return prevPage - 1;
+		});
+	};
 
 	useEffect(() => {
 		getPlayers()
@@ -65,17 +81,85 @@ const PlayersListPage = () => {
 
 	return (
 		<Box mx='auto' w='80em' pt='4em'>
+			<Flex
+				align='center'
+				justify='space-between'
+				gap='1em'
+				mb='2em'
+				bg='gray.300'
+				borderRadius='md'
+				p='1em'
+			>
+				<Flex align='center' gap='1em'>
+					<Input
+						ref={inputRef}
+						defaultValue={filters.search}
+						bg='white'
+						placeholder='Search by name'
+						onKeyDown={evt => {
+							if (evt.key === 'Enter') {
+								setFilters(prev => {
+									const filterVal = { ...prev, search: inputRef.current?.value };
+									localStorage.setItem('filters', JSON.stringify(filterVal));
+									return filterVal;
+								});
+							}
+						}}
+					/>
+					<Button
+						colorScheme='blackAlpha'
+						onClick={() => {
+							setFilters(prev => {
+								const filterVal = { ...prev, search: inputRef.current?.value };
+								localStorage.setItem('filters', JSON.stringify(filterVal));
+								return filterVal;
+							});
+						}}
+					>
+						Search
+					</Button>
+				</Flex>
+				<Flex align='center' gap='1em'>
+					<Text>Filters</Text>
+					<Box w='10em'>
+						<Select
+							value={filters.type}
+							bg='white'
+							_hover={{ bg: 'white' }}
+							variant='filled'
+							placeholder='Select type'
+							onChange={e => {
+								setFilters(prev => {
+									const filterVal = { ...prev, type: e.target.value };
+									localStorage.setItem('filters', JSON.stringify(filterVal));
+									return filterVal;
+								});
+								setCurrentPage(1);
+							}}
+						>
+							{TypeOptions.map(opt => (
+								<option key={opt.value} value={opt.value}>
+									{opt.label}
+								</option>
+							))}
+						</Select>
+					</Box>
+				</Flex>
+			</Flex>
 			<Table
 				columns={columnsConfig}
-				rows={playersList}
+				rows={filteredPlayers}
 				perPage={10}
 				currentPage={currentPage}
-				paginationHandler={action => {
-					setCurrentPage(prevPage => {
-						if (action === 'reset') return 1;
-						if (action === 'forward') return prevPage + 1;
-						else return prevPage - 1;
-					});
+				paginationHandler={paginationHandler}
+				renderSingleRowData={(row, column, finalValue) => {
+					return column.accessor === 'name' ? (
+						<Text fontWeight='bold' _hover={{ color: 'blue.500' }}>
+							<Link to={`/players/${row.id}`}>{finalValue}</Link>
+						</Text>
+					) : (
+						finalValue
+					);
 				}}
 			/>
 		</Box>
