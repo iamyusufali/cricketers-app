@@ -3,7 +3,6 @@ import { Box, Button, Flex, Heading, Input, Select, Skeleton, Stack, Text } from
 import getPlayers, { TPlayer } from '../../utils/getPlayers';
 import { PaginationAction, Table } from '../../components/Table';
 import { TypeOptions } from '../../utils/constants';
-import { filterPlayers } from '../../utils/helpers';
 import { Link } from 'react-router-dom';
 
 /**
@@ -22,6 +21,25 @@ export interface Filters {
 	search?: string;
 	type?: string;
 }
+
+/**
+ *
+ * Helpers
+ *
+ **/
+const filterPlayers = (rows: TPlayer[], filter: Filters) => {
+	const { search, type } = filter;
+
+	if (search && !type)
+		return rows.filter(row => row.name?.toLocaleLowerCase().includes(search.toLowerCase()));
+	if (!search && type) return rows.filter(row => row.type === type);
+	if (search && type)
+		return rows.filter(
+			row => row.name?.toLocaleLowerCase().includes(search.toLowerCase()) && row.type === type
+		);
+
+	return rows;
+};
 
 /**
  *
@@ -53,6 +71,14 @@ const PlayersListPage = () => {
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [playersList, setPlayersList] = useState<TPlayer[]>([]);
 	const filteredPlayers = filterPlayers(playersList, filters);
+
+	const filterHandler = (value: { search?: string; type?: string }) => {
+		setFilters(prev => {
+			const filterVal = { ...prev, ...value };
+			localStorage.setItem('filters', JSON.stringify(filterVal));
+			return filterVal;
+		});
+	};
 
 	const paginationHandler = (action: PaginationAction) => {
 		setCurrentPage(prevPage => {
@@ -91,25 +117,15 @@ const PlayersListPage = () => {
 						ref={inputRef}
 						defaultValue={filters.search}
 						placeholder='Search by name'
-						onKeyDown={evt => {
-							if (evt.key === 'Enter') {
-								setFilters(prev => {
-									const filterVal = { ...prev, search: inputRef.current?.value };
-									localStorage.setItem('filters', JSON.stringify(filterVal));
-									return filterVal;
-								});
+						onKeyUp={evt => {
+							if (evt.key === 'Enter' || !inputRef.current?.value) {
+								filterHandler({ search: inputRef.current?.value });
 							}
 						}}
 					/>
 					<Button
 						colorScheme='teal'
-						onClick={() => {
-							setFilters(prev => {
-								const filterVal = { ...prev, search: inputRef.current?.value };
-								localStorage.setItem('filters', JSON.stringify(filterVal));
-								return filterVal;
-							});
-						}}
+						onClick={() => filterHandler({ search: inputRef.current?.value })}
 					>
 						Search
 					</Button>
@@ -122,11 +138,7 @@ const PlayersListPage = () => {
 							variant='filled'
 							placeholder='Select type'
 							onChange={e => {
-								setFilters(prev => {
-									const filterVal = { ...prev, type: e.target.value };
-									localStorage.setItem('filters', JSON.stringify(filterVal));
-									return filterVal;
-								});
+								filterHandler({ type: e.target.value });
 								setCurrentPage(1);
 							}}
 						>

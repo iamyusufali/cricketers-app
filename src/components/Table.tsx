@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TPlayer } from '../utils/getPlayers';
 import {
 	Text,
@@ -45,6 +45,21 @@ interface SortState {
 
 /**
  *
+ * Helpers
+ *
+ **/
+const sortPlayers = (rows: TPlayer[], sort: SortState) =>
+	rows.sort((a, b) => {
+		const aOrderBy = a[sort.orderBy];
+		const bOrderBy = b[sort.orderBy];
+
+		if (!aOrderBy || !bOrderBy) return 0;
+		if (sort.order === 'asc') return aOrderBy < bOrderBy ? -1 : 1;
+		return aOrderBy > bOrderBy ? -1 : 1;
+	});
+
+/**
+ *
  * Main Component
  *
  **/
@@ -56,16 +71,7 @@ export const Table = (props: TableProps) => {
 		orderBy: 'name',
 	});
 
-	const sortedRows = (() => {
-		return rows.sort((a, b) => {
-			const aOrderBy = a[sort.orderBy];
-			const bOrderBy = b[sort.orderBy];
-
-			if (!aOrderBy || !bOrderBy) return 0;
-			if (sort.order === 'asc') return aOrderBy < bOrderBy ? -1 : 1;
-			return aOrderBy > bOrderBy ? -1 : 1;
-		});
-	})();
+	const sortedRows = useMemo(() => sortPlayers(rows, sort), [rows, sort]);
 	const perPageLimit = perPage || 10;
 	const rowsCount = sortedRows.length;
 	const totalPages = Math.ceil(rowsCount / perPageLimit);
