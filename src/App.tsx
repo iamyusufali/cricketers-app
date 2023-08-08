@@ -4,7 +4,7 @@ import { Box } from '@chakra-ui/react';
 
 const App = () => {
 	return (
-		<Box h='100vh' bg='gray.800'>
+		<Box h='full'>
 			<RouterProvider router={router} />
 		</Box>
 	);
