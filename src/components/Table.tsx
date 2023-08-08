@@ -13,6 +13,7 @@ import {
 	AlertIcon,
 	Alert,
 	Box,
+	Container,
 } from '@chakra-ui/react';
 import { ArrowDownIcon, ArrowUpIcon, ChevronLeftIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { Column } from '../pages/players/Listing';
@@ -98,21 +99,21 @@ export const Table = (props: TableProps) => {
 
 	if (!displayRows.length)
 		return (
-			<TableContainer w='full' border='1px' borderColor='gray.200' borderRadius='md'>
+			<Container>
 				<Flex justify='center' p='1em'>
 					<Alert status='warning'>
 						<AlertIcon />
 						<Text>No matching results found</Text>
 					</Alert>
 				</Flex>
-			</TableContainer>
+			</Container>
 		);
 
 	return (
-		<TableContainer w='full' border='1px' borderColor='gray.200' borderRadius='md'>
-			<ChakraTable variant='unstyled' bg='gray.200'>
+		<TableContainer w='full' border='1px' borderColor='gray.500' borderRadius='md' boxShadow='lg'>
+			<ChakraTable variant='striped' colorScheme='gray'>
 				<Thead>
-					<Tr bg='gray.300'>
+					<Tr>
 						{columns.map(column => {
 							return (
 								<Th key={column.accessor}>
@@ -136,7 +137,7 @@ export const Table = (props: TableProps) => {
 				</Thead>
 				<Tbody fontSize='0.8em'>
 					{displayRows.map(row => (
-						<Tr key={row.id} borderTop='1px' borderBottom='1px' borderColor='gray.300'>
+						<Tr key={row.id} borderTop='1px' borderBottom='1px'>
 							{columns.map(column => {
 								const finalValue = column.format
 									? column.format(row[column.accessor])
@@ -144,7 +145,7 @@ export const Table = (props: TableProps) => {
 
 								if (!finalValue) return;
 								return (
-									<Td color='gray.700' key={column.accessor}>
+									<Td key={column.accessor}>
 										{renderSingleRowData
 											? renderSingleRowData(row, column, finalValue)
 											: finalValue}
@@ -156,17 +157,13 @@ export const Table = (props: TableProps) => {
 				</Tbody>
 			</ChakraTable>
 
-			<Flex w='full' align='center' justify='end' gap='1em' p='0.65em' bg='gray.200'>
+			<Flex w='full' align='center' justify='end' gap='1em' p='0.65em'>
 				<Flex gap='0.2em'>
-					<Text fontSize='0.85em' color='gray.600'>
-						showing page
-					</Text>
-					<Text fontSize='0.85em' fontWeight='bold' color='green.600'>
+					<Text fontSize='0.85em'>showing page</Text>
+					<Text fontSize='0.85em' fontWeight='bold' color='gray.200'>
 						{currentPage}
 					</Text>
-					<Text fontSize='0.85em' color='gray.600'>
-						of {totalPages}
-					</Text>
+					<Text fontSize='0.85em'>of {totalPages}</Text>
 				</Flex>
 				{rowsCount > perPageLimit ? (
 					<Flex gap='0.85em'>
@@ -174,14 +171,14 @@ export const Table = (props: TableProps) => {
 							w={7}
 							h={7}
 							cursor={currentPage === 1 ? 'not-allowed' : 'pointer'}
-							color={currentPage === 1 ? 'gray.400' : 'gray.700'}
+							color={currentPage === 1 ? 'gray.600' : 'gray.200'}
 							onClick={() => movePage('backward')}
 						/>
 						<ChevronRightIcon
 							w={7}
 							h={7}
 							cursor={currentPage === totalPages ? 'not-allowed' : 'pointer'}
-							color={currentPage === totalPages ? 'gray.400' : 'gray.700'}
+							color={currentPage === totalPages ? 'gray.600' : 'gray.200'}
 							onClick={() => movePage('forward')}
 						/>
 					</Flex>

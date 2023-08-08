@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { Box, Button, Flex, Input, Select, Skeleton, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Input, Select, Skeleton, Stack, Text } from '@chakra-ui/react';
 import getPlayers, { TPlayer } from '../../utils/getPlayers';
 import { PaginationAction, Table } from '../../components/Table';
 import { TypeOptions } from '../../utils/constants';
@@ -80,21 +80,16 @@ const PlayersListPage = () => {
 		);
 
 	return (
-		<Box mx='auto' w='80em' pt='4em'>
-			<Flex
-				align='center'
-				justify='space-between'
-				gap='1em'
-				mb='2em'
-				bg='gray.300'
-				borderRadius='md'
-				p='1em'
-			>
+		<Box mx='auto' w='80em' pt='2em'>
+			<Heading textAlign='center' mb='1em'>
+				Cricketers list
+			</Heading>
+			<Flex align='center' justify='space-between' gap='1em' mb='2em' borderRadius='md' p='1em'>
 				<Flex align='center' gap='1em'>
 					<Input
+						variant='filled'
 						ref={inputRef}
 						defaultValue={filters.search}
-						bg='white'
 						placeholder='Search by name'
 						onKeyDown={evt => {
 							if (evt.key === 'Enter') {
@@ -107,7 +102,7 @@ const PlayersListPage = () => {
 						}}
 					/>
 					<Button
-						colorScheme='blackAlpha'
+						colorScheme='teal'
 						onClick={() => {
 							setFilters(prev => {
 								const filterVal = { ...prev, search: inputRef.current?.value };
@@ -124,8 +119,6 @@ const PlayersListPage = () => {
 					<Box w='10em'>
 						<Select
 							value={filters.type}
-							bg='white'
-							_hover={{ bg: 'white' }}
 							variant='filled'
 							placeholder='Select type'
 							onChange={e => {
