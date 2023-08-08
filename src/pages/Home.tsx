@@ -5,15 +5,23 @@ import { Link } from 'react-router-dom';
 const HomePage = () => {
 	return (
 		<Box mx='auto' pt='5em' maxW='35em'>
-			<Heading color='white' mb={4}>
+			<Heading mb='1em' size='3xl'>
 				Cricketers Arena
 			</Heading>
-			<Text color='white' fontSize='xl'>
-				Get to know the best of the bests from the India cricket team
+			<Text fontSize='2xl' mb='1em'>
+				Discover the Legends of Indian Cricket
+			</Text>
+			<Text color='gray.200' mb='1em'>
+				Ready to explore the comprehensive list of India cricketers who have represented the nation
+				on the international stage?
+			</Text>
+			<Text color='gray.200' mb='1em'>
+				Click the "View Cricketers List" button below and embark on a journey through the names that
+				have become synonymous with Indian cricketing excellence.
 			</Text>
 			<Link to='/players'>
-				<Button size='lg' colorScheme='green' mt='24px'>
-					View players list
+				<Button size='lg' colorScheme='teal' mt='24px'>
+					View Cricketers List
 				</Button>
 			</Link>
 		</Box>

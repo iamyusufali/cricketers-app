@@ -2,12 +2,16 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import getPlayers, { TPlayer } from '../../utils/getPlayers';
 import {
+	Alert,
+	AlertIcon,
 	Avatar,
 	Box,
+	Button,
 	Card,
 	CardBody,
 	CardHeader,
 	Center,
+	Container,
 	Divider,
 	Flex,
 	Heading,
@@ -56,23 +60,31 @@ const PlayerDetailsPage = () => {
 
 	if (!singlePlayer?.id)
 		return (
-			<Box mx='auto' w='80em' pt='4em'>
-				<Text gap='2em'>Player not found</Text>
-			</Box>
+			<Container mt='4em'>
+				<Stack align='center' gap='2em'>
+					<Alert variant='subtle' status='warning'>
+						<AlertIcon />
+						<Text>Player not found</Text>
+					</Alert>
+					<Link to='/players'>
+						<Button colorScheme='gray'>Back to list</Button>
+					</Link>
+				</Stack>
+			</Container>
 		);
 
 	return (
 		<Box mx='auto' w='80em' pt='2em'>
 			<Box mb='2em'>
 				<Link to='/players'>
-					<Flex color='white' _hover={{ color: 'blue.200' }} align='center' gap='0.5em'>
+					<Flex _hover={{ color: 'blue.200' }} align='center' gap='0.5em'>
 						<ArrowBackIcon w={6} h={6} />
 						<Text>back to list</Text>
 					</Flex>
 				</Link>
 			</Box>
 			<Flex align='start' gap='4em'>
-				<Card maxW='lg' bg='gray.100' p='1em'>
+				<Card maxW='lg' p='1em'>
 					<CardHeader>
 						<Flex>
 							<Flex flex='1' gap='4' alignItems='center' flexWrap='wrap'>
@@ -126,7 +138,7 @@ const PlayerDetailsPage = () => {
 							</Heading>
 							<SimpleGrid columns={2} spacing={10}>
 								{similarPlayers.map(player => (
-									<Card key={player.id} maxW='sm' bg='gray.100'>
+									<Card key={player.id} maxW='sm'>
 										<CardHeader>
 											<Flex flex='1' gap='4' alignItems='center' flexWrap='wrap'>
 												<Avatar name={player.name || ''} />
