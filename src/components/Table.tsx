@@ -48,7 +48,7 @@ interface SortState {
  * Helpers
  *
  **/
-const sortPlayers = (rows: TPlayer[], sort: SortState) =>
+const sortEntries = (rows: TPlayer[], sort: SortState) =>
 	rows.sort((a, b) => {
 		const aOrderBy = a[sort.orderBy];
 		const bOrderBy = b[sort.orderBy];
@@ -71,7 +71,7 @@ export const Table = (props: TableProps) => {
 		orderBy: 'name',
 	});
 
-	const sortedRows = useMemo(() => sortPlayers(rows, sort), [rows, sort]);
+	const sortedRows = useMemo(() => sortEntries(rows, sort), [rows, sort]);
 	const perPageLimit = perPage || 10;
 	const rowsCount = sortedRows.length;
 	const totalPages = Math.ceil(rowsCount / perPageLimit);
